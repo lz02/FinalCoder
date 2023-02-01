@@ -27,9 +27,9 @@ namespace FinalCoder.Core.Repositories
         {
             using (var con = Globals.SqlConnection)
             {
-                SqlCommand command = CommandHelper.GetCommand(con,
+                SqlCommand command = new SqlCommand(
                     $"INSERT INTO {TableName} (Descripciones, Costo, PrecioVenta, Stock, IdUsuario) " +
-                    $"VALUES (@desc, @cost, @price, @stock, @user)");
+                    $"VALUES (@desc, @cost, @price, @stock, @user)", con);
 
                 command.Parameters.AddWithValue("@desc", product.Description);
                 command.Parameters.AddWithValue("@cost", product.Cost);
@@ -45,9 +45,9 @@ namespace FinalCoder.Core.Repositories
         {
             using (var con = Globals.SqlConnection)
             {
-                SqlCommand command = CommandHelper.GetCommand(con,
+                SqlCommand command = new SqlCommand(
                     $"UPDATE {TableName} SET Descripciones = @desc, Costo = @cost, PrecioVenta = @price, Stock = @stock, IdUsuario = @user " +
-                    $"WHERE Id = @id");
+                    $"WHERE Id = @id", con);
 
                 command.Parameters.AddWithValue("@id", product.ID);
                 command.Parameters.AddWithValue("@desc", product.Description);
@@ -64,8 +64,9 @@ namespace FinalCoder.Core.Repositories
         {
             using (var con = Globals.SqlConnection)
             {
-                SqlCommand command = CommandHelper.GetCommand(con,
-                    $"DELETE FROM {TableName} WHERE Id = @id");
+                SqlCommand command = new SqlCommand(
+                    $"DELETE FROM {TableName} WHERE Id = @id"
+                    con);
 
                 command.Parameters.AddWithValue("@id", product.ID);
 
@@ -79,7 +80,7 @@ namespace FinalCoder.Core.Repositories
             Product product = new Product();
             using (var con = Globals.SqlConnection)
             {
-                SqlCommand command = CommandHelper.GetCommand(con, $"SELECT * FROM {TableName} WHERE Id = @id");
+                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Id = @id", con);
                 command.Parameters.AddWithValue("@id", id);
 
                 con.Open();
@@ -98,7 +99,7 @@ namespace FinalCoder.Core.Repositories
             Product product = new Product();
             using (var con = Globals.SqlConnection)
             {
-                SqlCommand command = CommandHelper.GetCommand(con, $"SELECT * FROM {TableName} WHERE Descripciones = @description");
+                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Descripciones = @description", con);
                 command.Parameters.AddWithValue("@description", description);
 
                 con.Open();
@@ -116,7 +117,7 @@ namespace FinalCoder.Core.Repositories
         {
             using (var con = Globals.SqlConnection)
             {
-                SqlCommand command = CommandHelper.GetCommand(con, $"SELECT * FROM {TableName}");
+                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName}", con);
 
                 con.Open();
                 using (SqlDataReader reader = command.ExecuteReader())
