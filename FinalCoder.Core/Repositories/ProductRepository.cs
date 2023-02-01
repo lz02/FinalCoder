@@ -65,7 +65,7 @@ namespace FinalCoder.Core.Repositories
             using (var con = Globals.SqlConnection)
             {
                 SqlCommand command = new SqlCommand(
-                    $"DELETE FROM {TableName} WHERE Id = @id"
+                    $"DELETE FROM {TableName} WHERE Id = @id",
                     con);
 
                 command.Parameters.AddWithValue("@id", product.ID);
