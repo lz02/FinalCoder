@@ -6,6 +6,102 @@ using FinalCoder.Core.Models;
 
 namespace FinalCoder.Core.Repositories
 {
+    public static class UsersRepository
+    {
+        const string TableName = "Usuario";
+        private static User MapToModel(SqlDataReader reader)
+        {
+            User user = new User();
+
+            user.ID = reader.GetInt64(0);
+            user.Name = reader.GetString(1);
+            user.Surname = reader.GetString(2);
+            user.UserName = reader.GetString(3);
+            user.Password = reader.GetString(4);
+            user.Email = reader.GetString(5);
+
+            return user;
+        }
+
+        public static int Insert(User user)
+        {
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand(
+                    $"INSERT INTO {TableName} (Nombre, Apellido, NombreUsuario, Contraseña, Email) " +
+                    $"VALUES (@name, @surname, @username, @password, @email)", con);
+
+                command.Parameters.AddWithValue("@name", user.Name);
+                command.Parameters.AddWithValue("@surname", user.Surname);
+                command.Parameters.AddWithValue("@username", user.UserName);
+                command.Parameters.AddWithValue("@password", user.Password);
+                command.Parameters.AddWithValue("@email", user.Email);
+
+                con.Open();
+                return command.ExecuteNonQuery();
+            }
+        }
+        public static int Update(User user)
+        {
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand(
+                    $"UPDATE {TableName} " +
+                    $"SET Nombre = @name, Apellido = @surname, NombreUsuario = @username, Contraseña = @password, Email = @email",
+                    con);
+
+                command.Parameters.AddWithValue("@name", user.Name);
+                command.Parameters.AddWithValue("@surname", user.Surname);
+                command.Parameters.AddWithValue("@username", user.UserName);
+                command.Parameters.AddWithValue("@password", user.Password);
+                command.Parameters.AddWithValue("@email", user.Email);
+
+                con.Open();
+                return command.ExecuteNonQuery();
+            }
+        }
+        public static int Delete(long id)
+        {
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand($"DELETE FROM {TableName} WHERE Id = @id", con);
+                command.Parameters.AddWithValue("@id", id);
+
+                con.Open();
+                return command.ExecuteNonQuery();
+            }
+        }
+    }
+    public static class SalesRepository
+    {
+        const string TableName = "Venta";
+        private static Sale MapToModel(SqlDataReader reader)
+        {
+            Sale sale = new Sale();
+
+            sale.ID = reader.GetInt64(0);
+            sale.Description = reader.GetString(1);
+            sale.UserId = reader.GetInt64(2);
+
+            return sale;
+        }
+    }
+    public static class ProductSalesRepository
+    {
+        const string TableName = "ProductoVendido";
+        private static ProductSale MapToModel(SqlDataReader reader)
+        {
+            ProductSale productSale = new ProductSale();
+
+            productSale.ID = reader.GetInt64(0);
+            productSale.Stock = reader.GetInt32(1);
+            productSale.ProductId = reader.GetInt64(2);
+            productSale.SaleId = reader.GetInt64(3);
+
+            return productSale;
+        }
+    }
+
     public static class ProductRepository
     {
         const string TableName = "Producto";
@@ -99,8 +195,8 @@ namespace FinalCoder.Core.Repositories
             Product product = new Product();
             using (var con = Globals.SqlConnection)
             {
-                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Descripciones = @description", con);
-                command.Parameters.AddWithValue("@description", description);
+                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Descripciones LIKE @description", con);
+                command.Parameters.AddWithValue("@description", $"'{description}'");
 
                 con.Open();
                 using (SqlDataReader reader = command.ExecuteReader())
@@ -127,7 +223,25 @@ namespace FinalCoder.Core.Repositories
                     {
                         products.Add(MapToModel(reader));
                     }
-                    con.Close();
+                    return products;
+                }
+            }
+        }
+        public static IEnumerable<Product> Search(string query)
+        {
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Descripciones LIKE @query", con);
+                command.Parameters.AddWithValue("@query", $"'%{query}%'");
+
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    List<Product> products = new List<Product>();
+                    while (reader.Read())
+                    {
+                        products.Add(MapToModel(reader));
+                    }
                     return products;
                 }
             }
