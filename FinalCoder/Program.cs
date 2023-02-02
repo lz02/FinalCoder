@@ -1,50 +1,22 @@
 ﻿using FinalCoder.Core.Models;
 using FinalCoder.Core.Repositories;
 
-/* Obtener un PRODUCTO por su ID */
-//Product remeraMangaLarga = ProductRepository.GetById(1);
-//Console.WriteLine(remeraMangaLarga.Description);
-/* ============================================================== */
+// Traer Usuario (recibe un int)
+User user = UsersRepository.GetById(1);
 
-/* Obtener un PRODUCTO por su Nombre/Descripcion */
-//Product buzo = ProductRepository.GetByDescription("Buzo");
-//Console.WriteLine(buzo.Description);
-/* ============================================================== */
+// Traer Productos (recibe un id de usuario y, devuelve una lista con todos los productos cargado por ese usuario)
+IEnumerable<Product> products = ProductsRepository.GetAllByUser(user.ID);
 
-/* Listar todos los registros de la tabla Producto */
-//IEnumerable<Product> productos = ProductRepository.GetAll();
-//foreach (var p in productos)
-//{
-//    Console.WriteLine(p.Description);
-//}
-/* ============================================================== */
+// Traer ProductosVendidos (recibe el id del usuario y devuelve una lista de productos vendidos por ese usuario)
+IEnumerable<ProductSale> salesDetailsByUser = ProductSalesRepository.GetAllSalesByUser(user.ID);
 
-/* INSERTAR un Producto */
-//Product gorra = new Product
-//{
-//    Description = "Gorra",
-//    Cost = 75,
-//    SellPrice = 110,
-//    Stock = 20,
-//    UserId = 1,
-//};
-//int modificaciones = ProductRepository.Insert(gorra);
+/* Internamente ProductsRepository.GetAllSalesByUser hace uso de
+ * ProductSalesRepository.GetAllSalesByUser para obtener las IDs
+ * de los Productos y luego obtener el objeto Producto correspondiente. */
+IEnumerable<Product> productSalesByUser = ProductsRepository.GetAllSalesByUser(user.ID);
 
-//var resultado = ProductRepository.GetByDescription(gorra.Description);
-//Console.WriteLine($"{resultado.ID} {resultado.Description}");
-/* ============================================================== */
+// Traer Ventas (recibe el id del usuario y devuelve un a lista de Ventas realizadas por ese usuario)
+IEnumerable<Sale> salesByUser = SalesRepository.GetByUserId(user.ID);
 
-/* ACTUALIZAR un Producto */
-//var _gorra = ProductRepository.GetByDescription("Gorra");
-//Console.WriteLine($"{gorra.ID} {gorra.Description}");
-
-//_gorra.Description = "Gorra roja";
-//ProductRepository.Update(gorra);
-
-//Console.WriteLine($"{gorra.ID} {gorra.Description}");
-/* ============================================================== */
-
-/* ELIMINAR un Producto */
-var _gorra = ProductsRepository.GetByName("Gorra");
-Console.WriteLine(ProductsRepository.Delete(_gorra));
-/* ============================================================== */
+// Inicio de sesión (recibe un usuario y contraseña y devuelve un objeto Usuario)
+User user2 = UsersRepository.LoginWithUsername(user.UserName, user.Password);

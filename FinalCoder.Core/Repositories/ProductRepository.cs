@@ -1,263 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
+﻿using System.Collections.Generic;
 using System.Data.SqlClient;
 using FinalCoder.Core.Models;
 
 namespace FinalCoder.Core.Repositories
 {
-    public static class UsersRepository
-    {
-        const string TableName = "Usuario";
-        private static User MapToModel(SqlDataReader reader)
-        {
-            User user = new User();
-
-            user.ID = reader.GetInt64(0);
-            user.Name = reader.GetString(1);
-            user.Surname = reader.GetString(2);
-            user.UserName = reader.GetString(3);
-            user.Password = reader.GetString(4);
-            user.Email = reader.GetString(5);
-
-            return user;
-        }
-
-        public static int Insert(User user)
-        {
-            using (var con = Globals.SqlConnection)
-            {
-                SqlCommand command = new SqlCommand(
-                    $"INSERT INTO {TableName} (Nombre, Apellido, NombreUsuario, Contraseña, Email) " +
-                    $"VALUES (@name, @surname, @username, @password, @email)", con);
-
-                command.Parameters.AddWithValue("@name", user.Name);
-                command.Parameters.AddWithValue("@surname", user.Surname);
-                command.Parameters.AddWithValue("@username", user.UserName);
-                command.Parameters.AddWithValue("@password", user.Password);
-                command.Parameters.AddWithValue("@email", user.Email);
-
-                con.Open();
-                return command.ExecuteNonQuery();
-            }
-        }
-        public static int Update(User user)
-        {
-            using (var con = Globals.SqlConnection)
-            {
-                SqlCommand command = new SqlCommand(
-                    $"UPDATE {TableName} " +
-                    $"SET Nombre = @name, Apellido = @surname, NombreUsuario = @username, Contraseña = @password, Email = @email",
-                    con);
-
-                command.Parameters.AddWithValue("@name", user.Name);
-                command.Parameters.AddWithValue("@surname", user.Surname);
-                command.Parameters.AddWithValue("@username", user.UserName);
-                command.Parameters.AddWithValue("@password", user.Password);
-                command.Parameters.AddWithValue("@email", user.Email);
-
-                con.Open();
-                return command.ExecuteNonQuery();
-            }
-        }
-        public static int Delete(long id)
-        {
-            using (var con = Globals.SqlConnection)
-            {
-                SqlCommand command = new SqlCommand($"DELETE FROM {TableName} WHERE Id = @id", con);
-                command.Parameters.AddWithValue("@id", id);
-
-                con.Open();
-                return command.ExecuteNonQuery();
-            }
-        }
-
-        public static User GetById(long id)
-        {
-            User user = new User();
-            using (var con = Globals.SqlConnection)
-            {
-                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Id = @id", con);
-                command.Parameters.AddWithValue("@id", id);
-
-                con.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        user = MapToModel(reader);
-                    }
-                }
-            }
-            return user;
-        }
-        public static User GetByUsername(string username)
-        {
-            User user = new User();
-            using (var con = Globals.SqlConnection)
-            {
-                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE NombreUsuario = @username", con);
-                command.Parameters.AddWithValue("@username", username);
-
-                con.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        user = MapToModel(reader);
-                    }
-                }
-            }
-            return user;
-        }
-        public static IEnumerable<User> GetAll()
-        {
-            using (var con = Globals.SqlConnection)
-            {
-                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName}", con);
-
-                con.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    List<User> users = new List<User>();
-                    while (reader.Read())
-                    {
-                        users.Add(MapToModel(reader));
-                    }
-                    return users;
-                }
-            }
-        }
-
-        public static User LoginWithUsername(string username, string password)
-        {
-            User user = new User();
-            using (var con = Globals.SqlConnection)
-            {
-                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE " +
-                    $"NombreUsuario = @username" +
-                    $"Contraseña = @password", con);
-                command.Parameters.AddWithValue("@username", username);
-                command.Parameters.AddWithValue("@password", password);
-
-                con.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        user = MapToModel(reader);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("Usuario o contraseña no validos!");
-                    }
-                }
-            }
-            return user;
-        }
-        public static User LoginWithEmail(string email, string password)
-        {
-            User user = new User();
-            using (var con = Globals.SqlConnection)
-            {
-                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE " +
-                    $"Email = @emial" +
-                    $"Contraseña = @password", con);
-                command.Parameters.AddWithValue("@email", email);
-                command.Parameters.AddWithValue("@password", password);
-
-                con.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        user = MapToModel(reader);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("Email o contraseña no validos!");
-                    }
-                }
-            }
-            return user;
-        }
-    }
-    public static class SalesRepository
-    {
-        const string TableName = "Venta";
-        private static Sale MapToModel(SqlDataReader reader)
-        {
-            Sale sale = new Sale();
-
-            sale.ID = reader.GetInt64(0);
-            sale.Description = reader.GetString(1);
-            sale.UserId = reader.GetInt64(2);
-
-            return sale;
-        }
-
-        public static Sale GetByUserId(long id)
-        {
-            Sale sale = new Sale();
-            using (var con = Globals.SqlConnection)
-            {
-                SqlCommand command = new SqlCommand(
-                    $"SELECT * FROM {TableName} " +
-                    $"WHERE IdUsuario = @id", con);
-                command.Parameters.AddWithValue("@id", id);
-
-                con.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        sale = MapToModel(reader);
-                    }
-                }
-            }
-            return sale;
-        }
-    }
-    public static class ProductSalesRepository
-    {
-        const string TableName = "ProductoVendido";
-        private static ProductSale MapToModel(SqlDataReader reader)
-        {
-            ProductSale productSale = new ProductSale();
-
-            productSale.ID = reader.GetInt64(0);
-            productSale.Stock = reader.GetInt32(1);
-            productSale.ProductId = reader.GetInt64(2);
-            productSale.SaleId = reader.GetInt64(3);
-
-            return productSale;
-        }
-
-        public static IEnumerable<ProductSale> GetAllByUser(long usarId)
-        {
-            using (var con = Globals.SqlConnection)
-            {
-                SqlCommand command = new SqlCommand(
-                    $"SELECT * FROM Producto " +
-                    $"INNER JOIN ProductoVendido " +
-                    $"ON ProductoVendido.IdUsuario = @id", con);
-                command.Parameters.AddWithValue("@id", usarId);
-
-                con.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    List<ProductSale> productSales = new List<ProductSale>();
-                    while (reader.Read())
-                    {
-                        productSales.Add(MapToModel(reader));
-                    }
-                    return productSales;
-                }
-            }
-        }
-
-    }
-
     public static class ProductsRepository
     {
         const string TableName = "Producto";
@@ -421,6 +167,35 @@ namespace FinalCoder.Core.Repositories
                     }
                     return products;
                 }
+            }
+        }
+        /// <summary>
+        /// Obtiene una lista con los productos vendidos por un usuario especifico.
+        /// </summary>
+        /// <param name="usarId">ID del usuario a buscar.</param>
+        /// <returns>Una lista con todos los productos que figuran 
+        /// en Ventas realizadas por un usuario especifico.</returns>
+        public static IEnumerable<Product> GetAllSalesByUser(long usarId)
+        {
+            IEnumerable<ProductSale> sales = ProductSalesRepository.GetAllSalesByUser(usarId);
+            using (var con = Globals.SqlConnection)
+            {
+                List<Product> products = new List<Product>();
+                con.Open();
+                foreach (ProductSale sale in sales)
+                {
+                    SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Id = @id", con);
+                    command.Parameters.AddWithValue("@id", sale.ProductId);
+                    
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            products.Add(MapToModel(reader));
+                        }
+                    }
+                }
+                return products;
             }
         }
 
