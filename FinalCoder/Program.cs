@@ -45,6 +45,6 @@ using FinalCoder.Core.Repositories;
 /* ============================================================== */
 
 /* ELIMINAR un Producto */
-var _gorra = ProductRepository.GetByDescription("Gorra");
-Console.WriteLine(ProductRepository.Delete(_gorra));
+var _gorra = ProductsRepository.GetByName("Gorra");
+Console.WriteLine(ProductsRepository.Delete(_gorra));
 /* ============================================================== */

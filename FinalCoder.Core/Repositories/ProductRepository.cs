@@ -71,6 +71,116 @@ namespace FinalCoder.Core.Repositories
                 return command.ExecuteNonQuery();
             }
         }
+
+        public static User GetById(long id)
+        {
+            User user = new User();
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Id = @id", con);
+                command.Parameters.AddWithValue("@id", id);
+
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        user = MapToModel(reader);
+                    }
+                }
+            }
+            return user;
+        }
+        public static User GetByUsername(string username)
+        {
+            User user = new User();
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE NombreUsuario = @username", con);
+                command.Parameters.AddWithValue("@username", username);
+
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        user = MapToModel(reader);
+                    }
+                }
+            }
+            return user;
+        }
+        public static IEnumerable<User> GetAll()
+        {
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName}", con);
+
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    List<User> users = new List<User>();
+                    while (reader.Read())
+                    {
+                        users.Add(MapToModel(reader));
+                    }
+                    return users;
+                }
+            }
+        }
+
+        public static User LoginWithUsername(string username, string password)
+        {
+            User user = new User();
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE " +
+                    $"NombreUsuario = @username" +
+                    $"Contraseña = @password", con);
+                command.Parameters.AddWithValue("@username", username);
+                command.Parameters.AddWithValue("@password", password);
+
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        user = MapToModel(reader);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Usuario o contraseña no validos!");
+                    }
+                }
+            }
+            return user;
+        }
+        public static User LoginWithEmail(string email, string password)
+        {
+            User user = new User();
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE " +
+                    $"Email = @emial" +
+                    $"Contraseña = @password", con);
+                command.Parameters.AddWithValue("@email", email);
+                command.Parameters.AddWithValue("@password", password);
+
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        user = MapToModel(reader);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Email o contraseña no validos!");
+                    }
+                }
+            }
+            return user;
+        }
     }
     public static class SalesRepository
     {
@@ -83,6 +193,28 @@ namespace FinalCoder.Core.Repositories
             sale.Description = reader.GetString(1);
             sale.UserId = reader.GetInt64(2);
 
+            return sale;
+        }
+
+        public static Sale GetByUserId(long id)
+        {
+            Sale sale = new Sale();
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand(
+                    $"SELECT * FROM {TableName} " +
+                    $"WHERE IdUsuario = @id", con);
+                command.Parameters.AddWithValue("@id", id);
+
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        sale = MapToModel(reader);
+                    }
+                }
+            }
             return sale;
         }
     }
@@ -100,9 +232,33 @@ namespace FinalCoder.Core.Repositories
 
             return productSale;
         }
+
+        public static IEnumerable<ProductSale> GetAllByUser(long usarId)
+        {
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand(
+                    $"SELECT * FROM Producto " +
+                    $"INNER JOIN ProductoVendido " +
+                    $"ON ProductoVendido.IdUsuario = @id", con);
+                command.Parameters.AddWithValue("@id", usarId);
+
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    List<ProductSale> productSales = new List<ProductSale>();
+                    while (reader.Read())
+                    {
+                        productSales.Add(MapToModel(reader));
+                    }
+                    return productSales;
+                }
+            }
+        }
+
     }
 
-    public static class ProductRepository
+    public static class ProductsRepository
     {
         const string TableName = "Producto";
         private static Product MapToModel(SqlDataReader reader)
@@ -171,6 +327,11 @@ namespace FinalCoder.Core.Repositories
             }
         }
 
+        /// <summary>
+        /// Obtiene un producto por su ID.
+        /// </summary>
+        /// <param name="id">ID del producto para buscar.</param>
+        /// <returns>Un producto cuya ID coincide con el <paramref name="id"/> indicado.</returns>
         public static Product GetById(long id)
         {
             Product product = new Product();
@@ -190,13 +351,18 @@ namespace FinalCoder.Core.Repositories
             }
             return product;
         }
-        public static Product GetByDescription(string description)
+        /// <summary>
+        /// Obtiene un producto por su nombre.
+        /// </summary>
+        /// <param name="name">Nombre del producto para buscar.</param>
+        /// <returns>Un producto cuya Descripción coincide con el <paramref name="name"/> indicado.</returns>
+        public static Product GetByName(string name)
         {
             Product product = new Product();
             using (var con = Globals.SqlConnection)
             {
                 SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Descripciones LIKE @description", con);
-                command.Parameters.AddWithValue("@description", $"'{description}'");
+                command.Parameters.AddWithValue("@description", $"'{name}'");
 
                 con.Open();
                 using (SqlDataReader reader = command.ExecuteReader())
@@ -209,6 +375,10 @@ namespace FinalCoder.Core.Repositories
             }
             return product;
         }
+        /// <summary>
+        /// Obtiene todos los registros disponibles.
+        /// </summary>
+        /// <returns>Una lista con todos los productos en la base de datos.</returns>
         public static IEnumerable<Product> GetAll()
         {
             using (var con = Globals.SqlConnection)
@@ -227,11 +397,40 @@ namespace FinalCoder.Core.Repositories
                 }
             }
         }
+        /// <summary>
+        /// Obtiene todos los productos cargados por un usuario específico.
+        /// </summary>
+        /// <param name="usarId">ID del usuario para buscar.</param>
+        /// <returns>Una lista con todos los productos en la base de datos, cargados por un usuario específico.</returns>
+        public static IEnumerable<Product> GetAllByUser(long usarId)
+        {
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand(
+                    $"SELECT * FROM {TableName} " +
+                    $"WHERE IdUsuario = @id", con);
+                command.Parameters.AddWithValue("@id", usarId);
+
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    List<Product> products = new List<Product>();
+                    while (reader.Read())
+                    {
+                        products.Add(MapToModel(reader));
+                    }
+                    return products;
+                }
+            }
+        }
+
         public static IEnumerable<Product> Search(string query)
         {
             using (var con = Globals.SqlConnection)
             {
-                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Descripciones LIKE @query", con);
+                SqlCommand command = new SqlCommand(
+                    $"SELECT * FROM {TableName} " +
+                    $"WHERE Descripciones LIKE @query", con);
                 command.Parameters.AddWithValue("@query", $"'%{query}%'");
 
                 con.Open();
