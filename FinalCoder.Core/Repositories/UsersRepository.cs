@@ -22,13 +22,14 @@ namespace FinalCoder.Core.Repositories
             return user;
         }
 
-        public static int Insert(User user)
+        public static long Insert(User user)
         {
             using (var con = Globals.SqlConnection)
             {
                 SqlCommand command = new SqlCommand(
                     $"INSERT INTO {TableName} (Nombre, Apellido, NombreUsuario, Contraseña, Mail) " +
-                    $"VALUES (@name, @surname, @username, @password, @email)", con);
+                    $"VALUES (@name, @surname, @username, @password, @email); " +
+                    $"SELECT @@IDENTITY", con);
 
                 command.Parameters.AddWithValue("@name", user.Name);
                 command.Parameters.AddWithValue("@surname", user.Surname);
@@ -37,7 +38,7 @@ namespace FinalCoder.Core.Repositories
                 command.Parameters.AddWithValue("@email", user.Email);
 
                 con.Open();
-                return command.ExecuteNonQuery();
+                return Convert.ToInt64(command.ExecuteScalar());
             }
         }
         public static int Update(User user)

@@ -30,13 +30,14 @@ namespace FinalCoder.Core.Repositories
             return true;
         }
 
-        public static int Insert(Product product)
+        public static long Insert(Product product)
         {
             using (var con = Globals.SqlConnection)
             {
                 SqlCommand command = new SqlCommand(
                     $"INSERT INTO {TableName} (Descripciones, Costo, PrecioVenta, Stock, IdUsuario) " +
-                    $"VALUES (@desc, @cost, @price, @stock, @user)", con);
+                    $"VALUES (@desc, @cost, @price, @stock, @user); " +
+                    $"SELECT @@IDENTITY", con);
 
                 command.Parameters.AddWithValue("@desc", product.Description);
                 command.Parameters.AddWithValue("@cost", product.Cost);
@@ -48,7 +49,7 @@ namespace FinalCoder.Core.Repositories
 
                 if (IsValid(product))
                 {
-                    return command.ExecuteNonQuery();
+                    return Convert.ToInt64(command.ExecuteScalar());
                 }
 
                 throw new ArgumentException();
