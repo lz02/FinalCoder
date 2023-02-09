@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using FinalCoder.Core.Models;
 
@@ -20,6 +21,14 @@ namespace FinalCoder.Core.Repositories
 
             return product;
         }
+        private static bool IsValid(Product product)
+        {
+            if (string.IsNullOrEmpty(product.Description) || product.SellPrice == 0 || product.Stock < 0 || product.UserId == 0)
+            {
+                return false;
+            }
+            return true;
+        }
 
         public static int Insert(Product product)
         {
@@ -36,7 +45,13 @@ namespace FinalCoder.Core.Repositories
                 command.Parameters.AddWithValue("@user", product.UserId);
 
                 con.Open();
-                return command.ExecuteNonQuery();
+
+                if (IsValid(product))
+                {
+                    return command.ExecuteNonQuery();
+                }
+
+                throw new ArgumentException();
             }
         }
         public static int Update(Product product)
@@ -45,7 +60,7 @@ namespace FinalCoder.Core.Repositories
             {
                 SqlCommand command = new SqlCommand(
                     $"UPDATE {TableName} SET Descripciones = @desc, Costo = @cost, PrecioVenta = @price, Stock = @stock, IdUsuario = @user " +
-                    $"WHERE Id = @id", con);
+                    $"WHERE Id = @id ", con);
 
                 command.Parameters.AddWithValue("@id", product.ID);
                 command.Parameters.AddWithValue("@desc", product.Description);
@@ -55,7 +70,13 @@ namespace FinalCoder.Core.Repositories
                 command.Parameters.AddWithValue("@user", product.UserId);
 
                 con.Open();
-                return command.ExecuteNonQuery();
+
+                if (IsValid(product))
+                {
+                    return command.ExecuteNonQuery();
+                }
+
+                throw new ArgumentException();
             }
         }
         public static int Delete(Product product)
@@ -169,6 +190,7 @@ namespace FinalCoder.Core.Repositories
                 }
             }
         }
+
         /// <summary>
         /// Obtiene una lista con los productos vendidos por un usuario especifico.
         /// </summary>
@@ -177,7 +199,7 @@ namespace FinalCoder.Core.Repositories
         /// en Ventas realizadas por un usuario especifico.</returns>
         public static IEnumerable<Product> GetAllSalesByUser(long usarId)
         {
-            IEnumerable<ProductSale> sales = ProductSalesRepository.GetAllSalesByUser(usarId);
+            IEnumerable<ProductSale> sales = ProductSalesRepository.GetAllByUser(usarId);
             using (var con = Globals.SqlConnection)
             {
                 List<Product> products = new List<Product>();
@@ -196,28 +218,6 @@ namespace FinalCoder.Core.Repositories
                     }
                 }
                 return products;
-            }
-        }
-
-        public static IEnumerable<Product> Search(string query)
-        {
-            using (var con = Globals.SqlConnection)
-            {
-                SqlCommand command = new SqlCommand(
-                    $"SELECT * FROM {TableName} " +
-                    $"WHERE Descripciones LIKE @query", con);
-                command.Parameters.AddWithValue("@query", $"'%{query}%'");
-
-                con.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    List<Product> products = new List<Product>();
-                    while (reader.Read())
-                    {
-                        products.Add(MapToModel(reader));
-                    }
-                    return products;
-                }
             }
         }
     }
