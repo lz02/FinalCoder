@@ -74,7 +74,7 @@ IEnumerable<Product> products = ProductsRepository.GetAllByUser(user.ID);
 Console.WriteLine(ProductsToString(products.ToArray()));
 
 // Traer ProductosVendidos (recibe el id del usuario y devuelve una lista de productos vendidos por ese usuario)
-IEnumerable<ProductSale> salesDetailsByUser = ProductSalesRepository.GetAllSalesByUser(user.ID);
+IEnumerable<ProductSale> salesDetailsByUser = ProductSalesRepository.GetAllByUser(user.ID);
 Console.WriteLine(ProductSalesToString(salesDetailsByUser.ToArray()));
 
 /* Internamente ProductsRepository.GetAllSalesByUser hace uso de
@@ -84,7 +84,7 @@ IEnumerable<Product> productSalesByUser = ProductsRepository.GetAllSalesByUser(u
 Console.WriteLine(ProductsToString(productSalesByUser.ToArray()));
 
 // Traer Ventas (recibe el id del usuario y devuelve un a lista de Ventas realizadas por ese usuario)
-IEnumerable<Sale> salesByUser = SalesRepository.GetByUserId(user.ID);
+IEnumerable<Sale> salesByUser = SalesRepository.GetAllByUser(user.ID);
 Console.WriteLine(SalesToString(salesByUser.ToArray()));
 
 // Inicio de sesión (recibe un usuario y contraseña y devuelve un objeto Usuario)

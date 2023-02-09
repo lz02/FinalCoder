@@ -21,7 +21,7 @@ namespace FinalCoder.API.Controllers
             }
             catch (ArgumentException e)
             {
-                return BadRequest(e.Message);
+                return Unauthorized(e.Message);
             }
             catch (Exception e) 
             {
@@ -47,29 +47,21 @@ namespace FinalCoder.API.Controllers
             return Ok(user);
         }
 
-        // GET api/<UserController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<UserController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
         // PUT api/<UserController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut]
+        public IActionResult Put([FromBody] User value)
         {
-        }
+            int result;
+            try
+            {
+                result = UsersRepository.Update(value);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
 
-        // DELETE api/<UserController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return Ok($"{result} registro(s) modificados.");
         }
     }
 }

@@ -10,19 +10,12 @@ namespace FinalCoder.API.Controllers
     {
         // GET: api/<ProductsController>
         [HttpGet]
-        public IActionResult Get([FromQuery] string query)
+        public IActionResult Get()
         {
             IEnumerable<Product> products;
             try
             {
-                if (string.IsNullOrEmpty(query))
-                {
-                    products = ProductsRepository.GetAll();
-                }
-                else
-                {
-                    products = ProductsRepository.Search(query);
-                }
+                products = ProductsRepository.GetAll();
             }
             catch (Exception e)
             {
@@ -83,7 +76,7 @@ namespace FinalCoder.API.Controllers
         }
 
         // PUT api/<ProductsController>/5
-        [HttpPut("{id}")]
+        [HttpPut]
         public IActionResult Put([FromBody] Product value)
         {
             int result;

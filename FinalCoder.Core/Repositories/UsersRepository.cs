@@ -27,7 +27,7 @@ namespace FinalCoder.Core.Repositories
             using (var con = Globals.SqlConnection)
             {
                 SqlCommand command = new SqlCommand(
-                    $"INSERT INTO {TableName} (Nombre, Apellido, NombreUsuario, Contraseña, Email) " +
+                    $"INSERT INTO {TableName} (Nombre, Apellido, NombreUsuario, Contraseña, Mail) " +
                     $"VALUES (@name, @surname, @username, @password, @email)", con);
 
                 command.Parameters.AddWithValue("@name", user.Name);
@@ -46,7 +46,8 @@ namespace FinalCoder.Core.Repositories
             {
                 SqlCommand command = new SqlCommand(
                     $"UPDATE {TableName} " +
-                    $"SET Nombre = @name, Apellido = @surname, NombreUsuario = @username, Contraseña = @password, Email = @email",
+                    $"SET Nombre = @name, Apellido = @surname, NombreUsuario = @username, Contraseña = @password, Mail = @email " +
+                    $"WHERE Id = {user.ID}",
                     con);
 
                 command.Parameters.AddWithValue("@name", user.Name);
