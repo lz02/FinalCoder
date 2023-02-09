@@ -148,7 +148,7 @@ namespace FinalCoder.Core.Repositories
                     }
                     else
                     {
-                        throw new InvalidOperationException("Usuario o contraseña no validos!");
+                        throw new ArgumentException("Usuario o contraseña no validos!");
                     }
                 }
             }

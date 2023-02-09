@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinalCoder.Core", "FinalCoder.Core\FinalCoder.Core.csproj", "{CA22E673-CCE6-44E0-BF96-2F08DF5657E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinalCoder.Core", "FinalCoder.Core\FinalCoder.Core.csproj", "{CA22E673-CCE6-44E0-BF96-2F08DF5657E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinalCoder", "FinalCoder\FinalCoder.csproj", "{C883D3FD-58FC-4540-8ED1-B3066E7CFBC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinalCoder", "FinalCoder\FinalCoder.csproj", "{C883D3FD-58FC-4540-8ED1-B3066E7CFBC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinalCoder.API", "FinalCoder.API\FinalCoder.API.csproj", "{CC0BED37-ED75-45A4-8184-1E558DEAABD3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{C883D3FD-58FC-4540-8ED1-B3066E7CFBC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C883D3FD-58FC-4540-8ED1-B3066E7CFBC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C883D3FD-58FC-4540-8ED1-B3066E7CFBC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC0BED37-ED75-45A4-8184-1E558DEAABD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC0BED37-ED75-45A4-8184-1E558DEAABD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC0BED37-ED75-45A4-8184-1E558DEAABD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC0BED37-ED75-45A4-8184-1E558DEAABD3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
