@@ -1,10 +1,7 @@
 ﻿using FinalCoder.API.Models;
-using FinalCoder.API.Models.Responses;
 using FinalCoder.Core.Models;
 using FinalCoder.Core.Repositories;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace FinalCoder.API.Controllers
 {
@@ -12,7 +9,6 @@ namespace FinalCoder.API.Controllers
     [ApiController]
     public class SalesController : ControllerBase
     {
-        // GET: api/<SalesController>
         [HttpGet("{id}")]
         public IActionResult Get(long id)
         {
@@ -28,6 +24,23 @@ namespace FinalCoder.API.Controllers
 
             return Ok(sale);
         }
+
+        [HttpGet("user/{userId}")]
+        public IActionResult GetAllByUser(long userId)
+        {
+            IEnumerable<Sale> sales;
+            try
+            {
+                sales = SalesRepository.GetAllByUser(userId);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            return Ok(sales);
+        }
+
         [HttpGet("{id}/items")]
         public IActionResult GetItemsOfSale(long id)
         {
@@ -44,7 +57,6 @@ namespace FinalCoder.API.Controllers
             return Ok(productSales);
         }
 
-        // POST api/<SalesController>
         [HttpPost("{userId}")]
         public IActionResult Post(long userId, [FromBody] params SaleItemModel[] saleItems)
         {

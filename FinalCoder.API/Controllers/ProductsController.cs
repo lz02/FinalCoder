@@ -8,7 +8,6 @@ namespace FinalCoder.API.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        // GET: api/<ProductsController>
         [HttpGet]
         public IActionResult Get()
         {
@@ -19,13 +18,12 @@ namespace FinalCoder.API.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return BadRequest(e.Message);
             }
 
             return Ok(products);
         }
 
-        // GET api/<ProductsController>/5
         [HttpGet("{id}")]
         public IActionResult Get(long id)
         {
@@ -36,7 +34,7 @@ namespace FinalCoder.API.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return BadRequest(e.Message);
             }
 
             return Ok(product);
@@ -52,30 +50,28 @@ namespace FinalCoder.API.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return BadRequest(e.Message);
             }
 
             return Ok(products);
         }
 
-        // POST api/<ProductsController>
         [HttpPost]
         public IActionResult Post([FromBody] Product value)
         {
-            int result;
+            long createdId;
             try
             {
-                result = ProductsRepository.Insert(value);
+                createdId = ProductsRepository.Insert(value);
             }
             catch (Exception e)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
 
-            return Ok($"{result} registro(s) modificados.");
+            return Ok($"ID del producto: {createdId}.");
         }
 
-        // PUT api/<ProductsController>/5
         [HttpPut]
         public IActionResult Put([FromBody] Product value)
         {
@@ -92,7 +88,6 @@ namespace FinalCoder.API.Controllers
             return Ok($"{result} registro(s) modificados.");
         }
 
-        // DELETE api/<ProductsController>/5
         [HttpDelete("{id}")]
         public IActionResult Delete(long id)
         {

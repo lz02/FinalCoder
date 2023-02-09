@@ -2,8 +2,6 @@
 using FinalCoder.Core.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace FinalCoder.API.Controllers
 {
     [Route("api/users")]
@@ -34,20 +32,20 @@ namespace FinalCoder.API.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromBody] User user)
         {
-            int result;
+            long createdId;
             try
             {
-                result = UsersRepository.Insert(user);
+                createdId = UsersRepository.Insert(user);
             }
             catch (Exception e)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
 
+            user.ID = createdId;
             return Ok(user);
         }
 
-        // PUT api/<UserController>/5
         [HttpPut]
         public IActionResult Put([FromBody] User value)
         {
