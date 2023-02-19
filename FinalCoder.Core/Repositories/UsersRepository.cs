@@ -22,8 +22,18 @@ namespace FinalCoder.Core.Repositories
             return user;
         }
 
+        private static void EnsureUserNotExists(string username)
+        {
+            if (GetByUsername(username) != null)
+            {
+                throw new ArgumentException($"El usuario \"{username}\" ya existe.");
+            }
+        }
+
         public static long Insert(User user)
         {
+            EnsureUserNotExists(user.UserName);
+
             using (var con = Globals.SqlConnection)
             {
                 SqlCommand command = new SqlCommand(
@@ -43,6 +53,8 @@ namespace FinalCoder.Core.Repositories
         }
         public static int Update(User user)
         {
+            EnsureUserNotExists(user.UserName);
+
             using (var con = Globals.SqlConnection)
             {
                 SqlCommand command = new SqlCommand(
@@ -73,9 +85,8 @@ namespace FinalCoder.Core.Repositories
             }
         }
 
-        public static User GetById(long id)
+        public static User? GetById(long id)
         {
-            User user = new User();
             using (var con = Globals.SqlConnection)
             {
                 SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Id = @id", con);
@@ -86,15 +97,14 @@ namespace FinalCoder.Core.Repositories
                 {
                     if (reader.Read())
                     {
-                        user = MapToModel(reader);
+                        return MapToModel(reader);
                     }
+                    return null;
                 }
             }
-            return user;
         }
-        public static User GetByUsername(string username)
+        public static User? GetByUsername(string username)
         {
-            User user = new User();
             using (var con = Globals.SqlConnection)
             {
                 SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE NombreUsuario = @username", con);
@@ -105,11 +115,11 @@ namespace FinalCoder.Core.Repositories
                 {
                     if (reader.Read())
                     {
-                        user = MapToModel(reader);
+                        return MapToModel(reader);
                     }
+                    return null;
                 }
             }
-            return user;
         }
         public static IEnumerable<User> GetAll()
         {

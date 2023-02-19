@@ -8,7 +8,6 @@ namespace FinalCoder.API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        // GET: api/<UserController>
         [HttpGet("login")]
         public IActionResult Login([FromQuery] string username, [FromQuery] string password)
         {
@@ -23,7 +22,7 @@ namespace FinalCoder.API.Controllers
             }
             catch (Exception e) 
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return BadRequest(e.Message);
             }
 
             return Ok(user);
@@ -37,12 +36,36 @@ namespace FinalCoder.API.Controllers
             {
                 createdId = UsersRepository.Insert(user);
             }
+            catch (ArgumentException e)
+            {
+                return Unauthorized(e.Message);
+            }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return BadRequest(e.Message);
             }
 
             user.ID = createdId;
+            return Ok(user);
+        }
+
+        [HttpGet("{username}")]
+        public IActionResult Get(string username)
+        {
+            User user;
+            try
+            {
+                user = UsersRepository.GetByUsername(username);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            if (user == null)
+            {
+                return NotFound($"El usuario con nombre \"{username}\" no existe.");
+            }
             return Ok(user);
         }
 
@@ -56,7 +79,7 @@ namespace FinalCoder.API.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return BadRequest(e.Message);
             }
 
             return Ok($"{result} registro(s) modificados.");

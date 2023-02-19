@@ -21,6 +21,7 @@ namespace FinalCoder.Core.Repositories
 
             return product;
         }
+
         private static bool IsValid(Product product)
         {
             if (string.IsNullOrEmpty(product.Description) || product.SellPrice == 0 || product.Stock < 0 || product.UserId == 0)
@@ -32,6 +33,11 @@ namespace FinalCoder.Core.Repositories
 
         public static long Insert(Product product)
         {
+            if (GetByName(product.Description) != null)
+            {
+                throw new ArgumentException($"El producto de nombre {product.Description} ya existe.");
+            }
+
             using (var con = Globals.SqlConnection)
             {
                 SqlCommand command = new SqlCommand(
@@ -55,7 +61,7 @@ namespace FinalCoder.Core.Repositories
                 throw new ArgumentException();
             }
         }
-        public static int Update(Product product)
+        public static int Update(long id, Product product)
         {
             using (var con = Globals.SqlConnection)
             {
@@ -63,7 +69,7 @@ namespace FinalCoder.Core.Repositories
                     $"UPDATE {TableName} SET Descripciones = @desc, Costo = @cost, PrecioVenta = @price, Stock = @stock, IdUsuario = @user " +
                     $"WHERE Id = @id ", con);
 
-                command.Parameters.AddWithValue("@id", product.ID);
+                command.Parameters.AddWithValue("@id", id);
                 command.Parameters.AddWithValue("@desc", product.Description);
                 command.Parameters.AddWithValue("@cost", product.Cost);
                 command.Parameters.AddWithValue("@price", product.SellPrice);
@@ -100,9 +106,8 @@ namespace FinalCoder.Core.Repositories
         /// </summary>
         /// <param name="id">ID del producto para buscar.</param>
         /// <returns>Un producto cuya ID coincide con el <paramref name="id"/> indicado.</returns>
-        public static Product GetById(long id)
+        public static Product? GetById(long id)
         {
-            Product product = new Product();
             using (var con = Globals.SqlConnection)
             {
                 SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Id = @id", con);
@@ -113,35 +118,34 @@ namespace FinalCoder.Core.Repositories
                 {
                     if (reader.Read())
                     {
-                        product = MapToModel(reader);
+                        return MapToModel(reader);
                     }
+                    return null;
                 }
             }
-            return product;
         }
         /// <summary>
         /// Obtiene un producto por su nombre.
         /// </summary>
         /// <param name="name">Nombre del producto para buscar.</param>
         /// <returns>Un producto cuya Descripción coincide con el <paramref name="name"/> indicado.</returns>
-        public static Product GetByName(string name)
+        public static Product? GetByName(string name)
         {
-            Product product = new Product();
             using (var con = Globals.SqlConnection)
             {
-                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Descripciones LIKE @description", con);
-                command.Parameters.AddWithValue("@description", $"'{name}'");
+                SqlCommand command = new SqlCommand($"SELECT * FROM {TableName} WHERE Descripciones = @description", con);
+                command.Parameters.AddWithValue("@description", $"{name}");
 
                 con.Open();
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        product = MapToModel(reader);
+                        return MapToModel(reader);
                     }
+                    return null;
                 }
             }
-            return product;
         }
         /// <summary>
         /// Obtiene todos los registros disponibles.

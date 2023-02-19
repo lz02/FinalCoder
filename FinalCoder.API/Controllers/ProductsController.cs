@@ -66,19 +66,24 @@ namespace FinalCoder.API.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return BadRequest(e.Message);
             }
 
             return Ok($"ID del producto: {createdId}.");
         }
 
-        [HttpPut]
-        public IActionResult Put([FromBody] Product value)
+        [HttpPut("{id}")]
+        public IActionResult Put(long id, [FromBody] Product updateModel)
         {
+            if (ProductsRepository.GetById(id) == null)
+            {
+                return NotFound($"El producto con ID \"{id}\" no existe.");
+            }
+
             int result;
             try
             {
-                result = ProductsRepository.Update(value);
+                result = ProductsRepository.Update(id, updateModel);
             }
             catch (Exception e)
             {
@@ -91,14 +96,10 @@ namespace FinalCoder.API.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(long id)
         {
-            Product product;
-            try
+            Product product = ProductsRepository.GetById(id);
+            if (product == null)
             {
-                product = ProductsRepository.GetById(id);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return NotFound($"El producto con ID \"{id}\" no existe.");
             }
 
             int result = ProductsRepository.Delete(product);

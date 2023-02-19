@@ -37,6 +37,20 @@ namespace FinalCoder.Core.Repositories
                 return Convert.ToInt64(command.ExecuteScalar());
             }
         }
+        public static int Delete(ProductSale productSale)
+        {
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand(
+                    $"DELETE FROM {TableName} WHERE Id = @id",
+                    con);
+
+                command.Parameters.AddWithValue("@id", productSale.ID);
+
+                con.Open();
+                return command.ExecuteNonQuery();
+            }
+        }
 
         public static ProductSale GetById(long id)
         {

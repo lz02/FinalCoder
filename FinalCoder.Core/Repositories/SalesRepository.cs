@@ -35,8 +35,22 @@ namespace FinalCoder.Core.Repositories
                 return Convert.ToInt64(command.ExecuteScalar());
             }
         }
+        public static int Delete(Sale sale)
+        {
+            using (var con = Globals.SqlConnection)
+            {
+                SqlCommand command = new SqlCommand(
+                    $"DELETE FROM {TableName} WHERE Id = @id",
+                    con);
 
-        public static Sale GetById(long id)
+                command.Parameters.AddWithValue("@id", sale.ID);
+
+                con.Open();
+                return command.ExecuteNonQuery();
+            }
+        }
+
+        public static Sale? GetById(long id)
         {
             using (var con = Globals.SqlConnection)
             {
@@ -52,7 +66,7 @@ namespace FinalCoder.Core.Repositories
                     {
                         return MapToModel(reader);
                     }
-                    throw new ArgumentException();
+                    return null;
                 }
             }
         }

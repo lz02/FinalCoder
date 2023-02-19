@@ -2,6 +2,7 @@
 using FinalCoder.Core.Models;
 using FinalCoder.Core.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace FinalCoder.API.Controllers
 {
@@ -22,6 +23,10 @@ namespace FinalCoder.API.Controllers
                 return BadRequest(e.Message);
             }
 
+            if (sale == null)
+            {
+                return NotFound($"La venta con ID \"{id}\" no existe.");
+            }
             return Ok(sale);
         }
 
@@ -44,6 +49,11 @@ namespace FinalCoder.API.Controllers
         [HttpGet("{id}/items")]
         public IActionResult GetItemsOfSale(long id)
         {
+            if (SalesRepository.GetById(id) == null)
+            {
+                return NotFound($"La venta con ID \"{id}\" no existe.");
+            }
+
             IEnumerable<ProductSale> productSales;
             try
             {
@@ -54,6 +64,10 @@ namespace FinalCoder.API.Controllers
                 return BadRequest(e.Message);
             }
 
+            if (productSales.Count() == 0)
+            {
+                return Ok($"La venta con ID \"{id}\" no tiene items.");
+            }
             return Ok(productSales);
         }
 
@@ -86,11 +100,37 @@ namespace FinalCoder.API.Controllers
                 };
 
                 product.Stock -= item.Stock;
-                ProductsRepository.Update(product);
+                ProductsRepository.Update(item.ProductId, product);
                 ProductSalesRepository.Insert(productSale);
             }
 
             return Ok($"ID de la venta: {saleId}");
+        }
+        [HttpDelete("{id}")]
+        public IActionResult Delete(long id)
+        {
+            Sale sale = SalesRepository.GetById(id);
+            if (sale == null)
+            {
+                return NotFound($"La venta con ID \"{id}\" no se encontro.");
+            }
+            IEnumerable<ProductSale> saleItems = ProductSalesRepository.GetAllItemsOfSale(id);
+
+            foreach (ProductSale item in saleItems)
+            {
+                Product product = ProductsRepository.GetById(item.ProductId);
+                if (product == null)
+                {
+                    return NotFound(item.ProductId);
+                }
+
+                product.Stock += item.Stock;
+                ProductsRepository.Update(item.ProductId, product);
+                ProductSalesRepository.Delete(item);
+            }
+
+            int result = SalesRepository.Delete(sale);
+            return Ok($"{result} registro(s) modificados.");
         }
     }
 }
